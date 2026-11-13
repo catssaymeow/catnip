@@ -1,0 +1,130 @@
+Screen {
+    background: $surface;
+}
+
+Button {
+    color: $background 80%;
+    &:focus {
+        text-style: reverse;
+    }
+}
+
+.top-bar {
+    position: absolute;
+    padding: 1;
+    width: 100%;
+    min-height: 5;
+    align: center top;
+}
+
+.top-bar.hidden {
+    padding: 0;
+    width: 0;
+    min-height: 0%;
+    height: 0%;
+}
+
+.option {
+    width: 5%;
+}
+
+.open-folder {
+    background: $primary;
+    border-bottom: hkey $primary-darken-3;
+    border-top: hkey $primary-lighten-3;
+}
+    
+.open-file {
+    background: $warning;
+    border-bottom: hkey $warning-darken-3;
+    border-top: hkey $warning-lighten-3;
+}
+
+.new-file {
+    background: $error;
+    border-bottom: hkey $error-darken-3;
+    border-top: hkey $error-lighten-3;
+}
+
+.main-screen {
+    height: 87%;
+    padding: 1;
+    width: 100%;
+    align: left top;
+    text-align: left;
+}
+
+.main-screen.expanded {
+    height: 99%;
+    padding: 0 1 1 1;
+}
+
+.side-button {
+    layout: grid;
+    min-width: 4;
+    height: auto;
+    text-align: left;
+}
+
+SideBar {
+    width: 4;
+}
+
+#side-panel {
+    width: auto;
+    padding-left: 1;
+    text-align: center;
+    align: right middle;
+}
+
+#customizer Label {
+    margin: 1;
+}
+
+#runner-output {
+    border: panel $primary-darken-3;
+    padding: 1 2;
+}
+
+.tabbed-editor {
+    width: auto;
+    align: left middle;
+}
+
+.chat-pane{
+    margin: 0 1;
+}
+
+.chat-log {
+    align: left top;
+    padding: 0 1;
+}
+
+.user-message {
+    padding: 0 1;
+    color: $primary;
+    text-align: left;
+    width: auto;
+    max-width: 70%;
+    border: round $primary-darken-2;
+}
+
+.ai-message {
+    padding-top: 1;
+}
+
+.chat-input {
+    height: 5;
+    align: center bottom;
+}
+
+#key-mapping {
+    width: auto;
+    height: auto;
+    margin: 0;
+}
+
+Select {
+    max-width: 30;
+    margin-bottom: 1;
+}
