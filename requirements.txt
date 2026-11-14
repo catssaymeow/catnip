@@ -1,7 +1,0 @@
-textual
-textual[syntax]
-rich
-asyncio
-together
-Pygments
-psutil

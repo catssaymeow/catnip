@@ -82,36 +82,20 @@ EOF
 install_python_packages() {
     echo "Setting up virtual environment..."
 
-    if ! command_exists python3; then
-        echo "Error: Python3 is not installed."
+    if ! command_exists uv; then
+        echo "Error: uv is not installed."
         if [[ "$OS" == "Darwin" ]]; then
-            echo "Run: brew install python3"
-        elif [[ "$OS" == "Linux" ]]; then
-            echo "Run: sudo apt install python3 (Debian/Ubuntu) or sudo dnf install python3 (Fedora)"
+            echo "Run: brew install uv"
+        else
+            echo "See: https://docs.astral.sh/uv/getting-started/installation/"
         fi
         exit 1
     fi
 
-    if ! command_exists pip3; then
-        echo "Error: pip3 is not installed."
-        echo "Run: python3 -m ensurepip --default-pip"
-        exit 1
-    fi
-
-    if [ ! -d ".venv" ]; then
-        python3 -m venv .venv
-        sleep 2
-    fi
-
     PROJECT_DIR=$(cd "$(dirname "$0")" && pwd)
-    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
-        source "$PROJECT_DIR/.venv/Scripts/activate"
-    else
-        source "$PROJECT_DIR/.venv/bin/activate"
-    fi
     echo "Installing Python dependencies..."
-    pip install --upgrade pip
-    pip install -r "$PROJECT_DIR/requirements.txt"
+    # creates .venv (and fetches Python if needed) with the exact versions in uv.lock
+    uv sync --locked --no-dev --project "$PROJECT_DIR"
 }
 
 # Install dependencies based on OS
@@ -121,14 +105,9 @@ install_mac() {
         exit 1
     fi
 
-    if ! command_exists python3; then
-        echo "Python is not installed. Installing via Homebrew..."
-        brew install python3
-    fi
-
-    if ! command_exists pip3; then
-        echo "pip is missing. Installing..."
-        python3 -m ensurepip --default-pip
+    if ! command_exists uv; then
+        echo "uv is not installed. Installing via Homebrew..."
+        brew install uv
     fi
 
     if ! command_exists zenity; then
@@ -140,8 +119,8 @@ install_mac() {
 }
 
 install_linux() {
-    if ! command_exists python3 || ! command_exists pip3; then
-        echo "Python and pip are required but not found. Please install them first."
+    if ! command_exists uv; then
+        echo "uv is required but not found. Please install it first: https://docs.astral.sh/uv/getting-started/installation/"
         exit 1
     fi
 
@@ -167,8 +146,8 @@ install_windows() {
         echo "Python is not installed. Please install Python from https://www.python.org/downloads/"
         exit 1
     fi
-    if ! command_exists pip; then
-        echo "pip is missing. Please install Python with pip."
+    if ! command_exists uv; then
+        echo "uv is missing. Please install it first: https://docs.astral.sh/uv/getting-started/installation/"
         exit 1
     fi
 
