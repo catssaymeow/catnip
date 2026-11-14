@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 
 from ui.constants import WIDTH_SCALES, DEFAULT_SIDE_PANEL_WIDTH_PERCENTAGE
 from ui.sidebar.sidebar import SideBar
-from utils.screen import get_side_panel_width, get_tabbed_editor_width
 
 if TYPE_CHECKING:
     from app.entry import CatnipApp
@@ -70,10 +69,9 @@ class LayoutController:
             tabbed_editor.styles.width = "1fr"
             return
 
-        side_panel_width = get_side_panel_width(
-            self.side_panel_width_percentage)
-        side_panel.styles.width = side_panel_width
-        tabbed_editor.styles.width = get_tabbed_editor_width(side_panel_width)
+        # Relative widths keep the layout fluid when the terminal is resized.
+        side_panel.styles.width = f"{self.side_panel_width_percentage:.0%}"
+        tabbed_editor.styles.width = "1fr"
 
     def _get_side_panel(self) -> SideBar:
         """Return the side panel widget instance."""

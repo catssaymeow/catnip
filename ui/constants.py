@@ -4,16 +4,16 @@ WELCOME_MESSAGE = """
 - **Adjust** your terminal size for better view.
 - **Hover over** a button to see its tooltip.
 - **📋 Ctrl+C** to copy content.
-- **🐳 Ctrl+2** to open a customizer panel and change the look.
+- **🎨 Ctrl+2** to open a customizer panel and change the look.
 - **🐱 Ctrl+Shift+C** to start chatting with a cat.
 
 ### 📌 Supported Syntax Highlight:
->Python, JSON, Markdown, YAML, TOML, Rust,  
->
->HTML, CSS, XML, SQL, JavaScript, TypeScript, 
->
->Java, Bash, and Go.
+> Python, JSON, Markdown, YAML, TOML, Rust, HTML, CSS, XML, SQL,
+> JavaScript, TypeScript, Java, Bash, and Go.
 """
+
+# prompt line shown in the runner output panel
+RUNNER_PROMPT = "➜ (catnip):"
 
 # width sizes for side panel and tabbed editor in percentages
 WIDTH_SCALES = [0, 0.25, 0.5, 1]

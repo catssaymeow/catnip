@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-14T00:00:00Z",
+  "title": "Design System: Catnip",
+  "extensions": {
+    "colorMeta": {
+      "catnip-green": { "role": "primary", "displayName": "Catnip Green", "canonical": "#a6e3a1", "tonalRamp": ["#1b3319", "#2c5e28", "#3b8d34", "#47be3d", "#6fce67", "#9cd898", "#c7e6c4", "#eff7ee"] },
+      "seafoam-teal": { "role": "secondary", "displayName": "Seafoam Teal", "canonical": "#94e2d5", "tonalRamp": ["#183430", "#276056", "#328f80", "#39c2ab", "#64d1bf", "#96dacf", "#c3e7e1", "#eef7f5"] },
+      "lavender-sprig": { "role": "secondary", "displayName": "Lavender Sprig", "canonical": "#cba6f7", "tonalRamp": ["#24123b", "#401a6d", "#5b1ca5", "#751ae1", "#944cea", "#b486ea", "#d3bbef", "#f2ebf9"] },
+      "peach-fuzz": { "role": "tertiary", "displayName": "Peach Fuzz", "canonical": "#fab387", "tonalRamp": ["#3d2110", "#713915", "#ac4f16", "#eb6410", "#f28643", "#efab81", "#f2ceb9", "#faf0eb"] },
+      "butter-cream": { "role": "tertiary", "displayName": "Butter Cream", "canonical": "#f9e2af", "tonalRamp": ["#3b2e11", "#6e5418", "#a77b1a", "#e4a417", "#edba49", "#eccb84", "#f0dfba", "#f9f5eb"] },
+      "rose-bud": { "role": "tertiary", "displayName": "Rose Bud", "canonical": "#f38ba8", "tonalRamp": ["#3a121e", "#6c1b31", "#a31e43", "#de1d53", "#e84e79", "#e987a2", "#eebcca", "#f9ecef"] },
+      "moonlight-fur": { "role": "neutral", "displayName": "Moonlight Fur", "canonical": "#e2e6de", "tonalRamp": ["#262a23", "#434a3d", "#616c55", "#7e8e6d", "#9ba88e", "#b8c0b0", "#d5d9d1", "#f2f3f1"] },
+      "whisker-gray": { "role": "neutral", "displayName": "Whisker Gray", "canonical": "#6c7086", "tonalRamp": ["#242429", "#3e4049", "#585a69", "#71758a", "#9194a5", "#b2b4be", "#d2d3d8", "#f1f2f3"] },
+      "shadow-nap": { "role": "neutral", "displayName": "Shadow Nap", "canonical": "#45475a", "tonalRamp": ["#232429", "#3d3e4a", "#56586b", "#6e718d", "#8e91a7", "#b0b2c0", "#d1d2d9", "#f1f1f3"] },
+      "twilight-panel": { "role": "neutral", "displayName": "Twilight Panel", "canonical": "#313244", "tonalRamp": ["#22232a", "#3b3c4b", "#53556e", "#6a6c91", "#8b8daa", "#aeafc2", "#d0d1da", "#f1f1f4"] },
+      "dusk-surface": { "role": "neutral", "displayName": "Dusk Surface", "canonical": "#252532", "tonalRamp": ["#23232a", "#3c3c4b", "#54546d", "#6c6c8f", "#8d8da9", "#afafc1", "#d0d0da", "#f1f1f3"] },
+      "midnight-velvet": { "role": "neutral", "displayName": "Midnight Velvet", "canonical": "#1e1e2e", "tonalRamp": ["#21212b", "#39394e", "#4f4f72", "#656597", "#8787af", "#ababc5", "#cfcfdc", "#f1f1f4"] }
+    },
+    "typographyMeta": {
+      "body": { "displayName": "Terminal Mono", "purpose": "The user's terminal monospace font at one size; hierarchy via bold, color, and space only." }
+    }
+  },
+  "components": [
+    {
+      "name": "Pill Button (primary)",
+      "kind": "button",
+      "refersTo": "button-pill-rest",
+      "description": "Top-bar action pill: tinted at rest, solid on hover/focus — soft-spoken, then certain.",
+      "html": "<button class=\"ds-pill ds-pill-green\">Open Folder</button>",
+      "css": ".ds-pill { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-weight: 700; font-size: 14px; line-height: 1; border: none; padding: 5px 16px; cursor: pointer; transition: background 0.12s, color 0.12s; } .ds-pill-green { background: rgba(166, 227, 161, 0.15); color: #a6e3a1; } .ds-pill-green:hover, .ds-pill-green:focus-visible { background: #a6e3a1; color: #1e1e2e; outline: none; }"
+    },
+    {
+      "name": "Pill Button (caution)",
+      "kind": "button",
+      "refersTo": "button-pill-rest",
+      "description": "Butter-cream pill for secondary file actions (Open Files).",
+      "html": "<button class=\"ds-pill2 ds-pill-butter\">Open Files</button>",
+      "css": ".ds-pill2 { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-weight: 700; font-size: 14px; line-height: 1; border: none; padding: 5px 16px; cursor: pointer; transition: background 0.12s, color 0.12s; } .ds-pill-butter { background: rgba(249, 226, 175, 0.15); color: #f9e2af; } .ds-pill-butter:hover, .ds-pill-butter:focus-visible { background: #f9e2af; color: #1e1e2e; outline: none; }"
+    },
+    {
+      "name": "Pill Button (destructive-hue)",
+      "kind": "button",
+      "refersTo": "button-pill-rest",
+      "description": "Rose-bud pill (New File); rose is the destructive/attention hue.",
+      "html": "<button class=\"ds-pill3 ds-pill-rose\">New File</button>",
+      "css": ".ds-pill3 { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-weight: 700; font-size: 14px; line-height: 1; border: none; padding: 5px 16px; cursor: pointer; transition: background 0.12s, color 0.12s; } .ds-pill-rose { background: rgba(243, 139, 168, 0.15); color: #f38ba8; } .ds-pill-rose:hover, .ds-pill-rose:focus-visible { background: #f38ba8; color: #1e1e2e; outline: none; }"
+    },
+    {
+      "name": "Icon Rail Button",
+      "kind": "nav",
+      "refersTo": "rail-button-rest",
+      "description": "Emoji glyph on transparent; boost wash on hover, 25% primary tint on focus.",
+      "html": "<button class=\"ds-rail\" aria-label=\"Show customizer\">🎨</button>",
+      "css": ".ds-rail { font-family: ui-monospace, monospace; font-size: 16px; line-height: 1; width: 40px; padding: 6px 0; background: transparent; border: none; cursor: pointer; transition: background 0.12s; } .ds-rail:hover { background: rgba(255, 255, 255, 0.06); } .ds-rail:focus-visible { background: rgba(166, 227, 161, 0.25); outline: none; }"
+    },
+    {
+      "name": "Tab (active)",
+      "kind": "nav",
+      "refersTo": "button-pill-rest",
+      "description": "Editor tab: plain label with a catnip-green underline when active.",
+      "html": "<div class=\"ds-tabs\"><span class=\"ds-tab ds-tab-active\">Welcome</span><span class=\"ds-tab\">notes.md</span></div>",
+      "css": ".ds-tabs { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 14px; background: #252532; padding: 8px 8px 0 8px; display: inline-flex; gap: 16px; } .ds-tab { color: #6c7086; padding: 2px 4px 6px; border-bottom: 2px solid transparent; cursor: pointer; } .ds-tab:hover { color: #e2e6de; } .ds-tab-active { color: #e2e6de; border-bottom-color: #a6e3a1; }"
+    },
+    {
+      "name": "User Chat Bubble",
+      "kind": "card",
+      "refersTo": "chat-bubble-user",
+      "description": "The user's message in Cat Me: green text in a rounded box-drawing-style border, max 70% measure.",
+      "html": "<div class=\"ds-chat-user\">how do I undo in the editor?</div>",
+      "css": ".ds-chat-user { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 14px; color: #a6e3a1; background: #252532; border: 1px solid #5a9955; border-radius: 8px; padding: 4px 8px; max-width: 70%; display: inline-block; }"
+    },
+    {
+      "name": "Runner Output Panel",
+      "kind": "custom",
+      "refersTo": "side-panel",
+      "description": "Script output log in a panel border with the catnip prompt line.",
+      "html": "<div class=\"ds-runner\"><span class=\"ds-runner-out\">hello from script.py</span><br><span class=\"ds-runner-prompt\">➜ (catnip):</span></div>",
+      "css": ".ds-runner { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; background: #252532; border: 1px solid #3b8d34; border-top-width: 8px; padding: 12px 16px; color: #e2e6de; } .ds-runner-prompt { color: #a6e3a1; font-weight: 700; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Sunny Windowsill",
+    "overview": "Catnip's interface is the spot a cat actually chooses: a warm, soft-lit place inside a disciplined structure. The structure is the terminal grid — deep velvet dark, exact cell alignment, keyboard-first economy. The warmth is pastel light falling onto it: catnip green, seafoam, peach, and butter tints that appear as washes and accents, never as floods. The result is cozy but never messy; every playful touch (emoji icons, \"purr purr\" copy, the Cat Me tab) sits on top of a quiet, precise frame.\n\nThis is a terminal application (Textual/TCSS). Every styled value is theme-driven: TCSS references semantic variables ($primary, $warning, $error, $panel, $surface, $boost), and the custom catnip theme defines the house palette those variables resolve to. Users can live-switch to any Textual theme from the customizer, so the layout and tint logic must read correctly under any palette — the catnip theme is the authoritative expression, not the only one.",
+    "keyCharacteristics": [
+      "Deep soft dark ground with pastel garden accents, each hue carrying one meaning.",
+      "Tonal depth only: translucent washes (15/25/40%) and $boost, never shadows.",
+      "Soft-spoken controls that commit fully on interaction (tinted at rest, solid on hover/focus).",
+      "Emoji as the icon language; box-drawing round borders as the shape language.",
+      "Everything flows with the terminal: fractional/percent widths, fluid at any size."
+    ],
+    "rules": [
+      { "name": "The Theme Variable Rule", "body": "TCSS never hardcodes a hex value. All color flows through semantic theme variables ($primary, $warning, $error, $panel, $surface, $boost, $background) so the customizer's live theme switching restyles every screen. The catnip theme is where hex lives.", "section": "colors" },
+      { "name": "The One Meaning Rule", "body": "Each pastel keeps one job: green = primary/affirm, butter = caution/secondary action, rose = destructive, teal and lavender belong to the editor's syntax voice. Don't borrow a hue for a different meaning because it looks nice.", "section": "colors" },
+      { "name": "The One Size Rule", "body": "The terminal has one glyph size. Emphasis comes from bold, color, and surrounding space. Never fake \"large text\" with figlet banners or doubled rows in app chrome.", "section": "typography" },
+      { "name": "The Wash Rule", "body": "Depth and state are expressed as translucent color washes over the dark ground, never as borders-everywhere or bright fills at rest.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do route every color through a theme variable and verify new chrome under at least one non-catnip theme (the customizer makes this a one-keystroke check).",
+      "Do keep controls soft-spoken, then certain: tint at rest (15%), solid on hover/focus, nothing in between.",
+      "Do use relative widths (%, 1fr, auto) so every screen reflows with the terminal; verify at 80×24 and a wide size.",
+      "Do keep the cat voice in copy and emoji in iconography — warmth lives in words and glyphs, not extra decoration.",
+      "Do cap prose content at a ~90-cell measure."
+    ],
+    "donts": [
+      "Don't hardcode hex values in TCSS; hex belongs only in the theme definitions (core/theme.py).",
+      "Don't add shadows, gradients, or figlet-style large type — depth is tonal, type is one size.",
+      "Don't mix icon languages: no nerd-font glyphs or ASCII-art icons beside the emoji set.",
+      "Don't reassign hue meanings (rose stays destructive; green stays primary/affirm).",
+      "Don't let any surface depend on a fixed terminal size or absolute column widths."
+    ]
+  }
+}

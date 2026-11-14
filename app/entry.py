@@ -25,12 +25,12 @@ from features.customizer.customizer_controller import CustomizerController
 from features.customizer.customizer_panel import CustomizerPanel
 from features.executor import runner
 from features.shortcuts.shortcuts_tab import ShortcutsTab
-from ui.constants import DEFAULT_SIDE_PANEL_WIDTH_PERCENTAGE, WELCOME_MESSAGE
+from ui.constants import DEFAULT_SIDE_PANEL_WIDTH_PERCENTAGE, RUNNER_PROMPT, \
+    WELCOME_MESSAGE
 from ui.layout.layout_controller import LayoutController, SidePanelId
 from ui.sidebar.sidebar import SideBar
 from ui.topbar.top_bar import TopBar
 from utils.editor import register_custom_editor_theme, prepare_runnable_file
-from utils.screen import DEFAULT_LEFT_PANEL_WIDTH, DEFAULT_TABBED_EDITOR_WIDTH
 from utils.tabs import is_open
 
 
@@ -64,7 +64,7 @@ class CatnipApp(App):
                 show=True, priority=True),
         Binding("ctrl+shift+down", "unhide_top_bar", "unhide top-bar",
                 show=False, priority=True),
-        Binding("ctrl+shift+up", "hide_top_bar", "unhide top-bar", show=False,
+        Binding("ctrl+shift+up", "hide_top_bar", "hide top-bar", show=False,
                 priority=True),
         Binding("ctrl+shift+r", "run_script", "run script", show=False),
         Binding("ctrl+n", "new_file", "new file", show=False), ]
@@ -141,14 +141,11 @@ class CatnipApp(App):
                        Footer(), )
 
     def on_mount(self) -> None:
-        """Mount Welcome tab, set main component's width, and start LLM, if applicable."""
+        """Mount Welcome tab and start LLM, if applicable."""
 
         welcome_tab = TabPane(title="Welcome", id=WELCOME_TAB_ID)
         self.tabbed_editor.add_pane(welcome_tab)
         welcome_tab.mount(Markdown(WELCOME_MESSAGE))
-
-        self.query_one("#side-panel").styles.width = DEFAULT_LEFT_PANEL_WIDTH
-        self.query_one(TabbedContent).styles.width = DEFAULT_TABBED_EDITOR_WIDTH
 
         if self.config.llm_on_start:
             OllamaClient.serve()
@@ -204,8 +201,7 @@ class CatnipApp(App):
         self.layout_controller.show_side_panel(SidePanelId.RUNNER_OUTPUT)
         runner_output = self.query_one("#runner-output", expect_type=RichLog)
         if not runner_output.lines:
-            output = "➜ ✗ (catnip):"
-            runner_output.write(output)
+            runner_output.write(RUNNER_PROMPT)
 
     def action_show_shortcuts(self) -> None:
         """Open the key mappings inside a new tab in the tabbed editor."""
@@ -263,6 +259,8 @@ class CatnipApp(App):
         """
 
         document = self._get_active_document()
+        if document is None:
+            return
 
         if document.path is None:
             # finalize untitled document
@@ -309,6 +307,8 @@ class CatnipApp(App):
         """
 
         document = self._get_active_document()
+        if document is None:
+            return
 
         file_path = self.file_workflow.save_as(document)
         if not file_path:
@@ -367,7 +367,7 @@ class CatnipApp(App):
         self.action_show_runner_panel()
         runner_output = self.query_one("#runner-output", expect_type=RichLog)
         output = runner.run_file(file_path)
-        runner_output.write(f"{output}\n➜ ✗ (catnip):")
+        runner_output.write(f"{output}\n{RUNNER_PROMPT}")
 
     def open_file_dialog(self) -> None:
         """Open a file selection dialog and open the selected files in editor tabs."""
