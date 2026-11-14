@@ -103,7 +103,7 @@ SideBar {
 }
 
 #side-panel {
-    width: auto;
+    width: 25%;
     padding: 0 1;
     background: $panel 40%;
     text-align: center;
@@ -124,8 +124,19 @@ SideBar {
 }
 
 .tabbed-editor {
-    width: auto;
+    width: 1fr;
     align: left middle;
+}
+
+/* slim, theme-tinted scrollbars on the shell's scrolling surfaces */
+FileBrowser, #runner-output, #welcome {
+    scrollbar-size-vertical: 1;
+    scrollbar-size-horizontal: 1;
+}
+
+/* keep the welcome copy at a readable measure on wide terminals */
+#welcome Markdown {
+    max-width: 90;
 }
 
 .chat-pane{

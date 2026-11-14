@@ -7,3 +7,6 @@ __pycache__/
 *.pyo
 *.pyd
 .venv/
+# Impeccable: shared design artifacts are committed; only the per-machine config stays local
+# (runtime subdirectories ignore themselves when created)
+.impeccable/config.local.json
