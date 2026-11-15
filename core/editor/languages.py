@@ -10,7 +10,8 @@ EXTENSION_LANGUAGE_MAP = {"py": "python", "md": "markdown", "json": "json",
                           "sql": "sql", "java": "java", "sh": "bash",
                           "bash": "bash", "xml": "xml", }
 
-LANGUAGE_EXTENSION_MAP = {v: k for k, v in EXTENSION_LANGUAGE_MAP.items()}
+# first extension wins, so javascript -> js (not ts) and yaml -> yaml (not yml)
+LANGUAGE_EXTENSION_MAP = {v: k for k, v in reversed(EXTENSION_LANGUAGE_MAP.items())}
 
 
 def supported_languages() -> set[str]:

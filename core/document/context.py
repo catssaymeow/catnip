@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -18,6 +19,7 @@ class DocumentContext:
 
     def __init__(self) -> None:
         self._documents: Dict[str, Document] = {}
+        self._untitled_count = 0
         self._temp_dir = Path.home() / ".catnip/tmp"
         self._temp_dir.mkdir(parents=True, exist_ok=True)
 
@@ -42,8 +44,9 @@ class DocumentContext:
     def create_untitled(self) -> Document:
         """Create and register a new untitled document."""
 
-        index = len(self._documents) + 1
-        doc_id = f"doc-untitled-{index}"
+        # a running count, so ids never repeat after documents are closed
+        self._untitled_count += 1
+        doc_id = f"doc-untitled-{self._untitled_count}"
 
         doc = Document(id=doc_id, title="Untitled", path=None, content="",
                        language="markdown", dirty=False, )
@@ -52,31 +55,35 @@ class DocumentContext:
         return doc
 
     def get_temp_path(self, doc_id: str) -> Path:
-        """Return the temp file path for the given document."""
+        """
+        Return the temp file path for the given document. Each document gets
+        its own folder and keeps its real file name, so error messages name
+        the file people know and Java finds the class it expects.
+        """
 
         document = self._documents[doc_id]
-        
-        file_suffix = (
-            document.path.suffix
+
+        file_name = (
+            document.path.name
             if document.path
-            else f".{LANGUAGE_EXTENSION_MAP.get(document.language, 'tmp')}"
+            else f"{document.title}."
+                 f"{LANGUAGE_EXTENSION_MAP.get(document.language, 'tmp')}"
         )
-        return self._temp_dir / f"{doc_id}{file_suffix}"
+        return self._temp_dir / doc_id / file_name
 
     def write_temp(self, doc_id: str) -> Path:
         """Write the document content to a temp file and return its path."""
 
         doc = self._documents[doc_id]
         temp_path = self.get_temp_path(doc_id)
+        temp_path.parent.mkdir(parents=True, exist_ok=True)
         temp_path.write_text(doc.content, encoding="utf-8")
         return temp_path
 
     def remove_temp(self, doc_id: str) -> None:
-        """Remove the temp file associated with the document if it exists."""
+        """Remove the temp folder associated with the document if it exists."""
 
-        temp_path = self.get_temp_path(doc_id)
-        if temp_path.exists():
-            temp_path.unlink()
+        shutil.rmtree(self.get_temp_path(doc_id).parent, ignore_errors=True)
 
     def get(self, doc_id: str) -> Document:
         return self._documents[doc_id]
@@ -145,12 +152,13 @@ class DocumentContext:
         self.remove_temp(doc_id)
         self._documents.pop(doc_id, None)
 
-    def close_by_path(self, path: Path) -> list[str]:
-        """Close all open documents matching the given file path and return their IDs."""
+    def close_under(self, path: Path) -> list[str]:
+        """Close all open documents at the given path or inside it, and return their IDs."""
 
+        path = path.resolve()
         closed = []
         for doc_id, doc in list(self._documents.items()):
-            if doc.path == path:
+            if doc.path and doc.path.is_relative_to(path):
                 self.close(doc_id)
                 closed.append(doc_id)
         return closed

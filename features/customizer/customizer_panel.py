@@ -1,12 +1,13 @@
 from textual import on
 from textual.containers import Container
-from textual.widgets import Select, Label
+from textual.widgets import Label
 
 from features.customizer.customizer_controller import CustomizerController
+from ui.widgets.dropdown import Dropdown
 
 
 class CustomizerPanel(Container):
-    """A slide-in customization panel for selecting color scheme, theme, and language."""
+    """A side panel for choosing the app theme, the editor theme, and the active file's language."""
 
     def __init__(self, app_themes: list, current_app_theme: str,
                  editor_themes: list, current_editor_theme: str,
@@ -29,21 +30,28 @@ class CustomizerPanel(Container):
 
         yield Container(
             Label("App theme:"),
-            Select(options=self.app_themes, value=self.current_app_theme,
-                   tooltip="Select a theme to apply to the app",
-                   id="app-theme-picker", ),
+            Dropdown(options=self.app_themes, value=self.current_app_theme,
+                     tooltip="Select a theme to apply to the app",
+                     id="app-theme-picker", ),
             Label("Editor theme:"),
-            Select(options=self.editor_themes, value=self.current_editor_theme,
-                   tooltip="Select a theme to apply to the editor",
-                   id="editor-theme-picker", ),
+            Dropdown(options=self.editor_themes,
+                     value=self.current_editor_theme,
+                     tooltip="Select a theme to apply to the editor",
+                     id="editor-theme-picker", ),
             Label("File language:"),
-            Select(options=self.languages, value="python",
-                   tooltip="Select a programming language for the active tab",
-                   id="language-picker", ), )
+            Dropdown(options=self.languages,
+                     prompt="Not set",
+                     tooltip="Select a programming language for the active tab",
+                     id="language-picker", ), )
 
-    @on(Select.Changed)
-    def on_select_changed(self, event: Select.Changed) -> None:
+    def show_language(self, language: str | None) -> None:
+        """Show the active tab's language in the picker without re-applying it."""
+
+        self.query_one("#language-picker", expect_type=Dropdown).value = language
+
+    @on(Dropdown.Changed)
+    def on_dropdown_changed(self, event: Dropdown.Changed) -> None:
         """Notify the controller when the selection changes."""
 
-        self.controller.handle_select_change(select_id=event.select.id,
+        self.controller.handle_select_change(select_id=event.dropdown.id,
                                              value=event.value, )

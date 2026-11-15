@@ -2,11 +2,15 @@ Screen {
     background: $surface;
 }
 
-Button {
-    color: $background 80%;
-    &:focus {
-        text-style: reverse;
-    }
+/* neutral scrollbars everywhere: green is spent on what's current, not on chrome */
+* {
+    scrollbar-color: $foreground 35%;
+    scrollbar-color-hover: $foreground 55%;
+    scrollbar-color-active: $primary;
+    scrollbar-background: $foreground 5%;
+    scrollbar-background-hover: $foreground 5%;
+    scrollbar-background-active: $foreground 5%;
+    scrollbar-corner-color: $foreground 5%;
 }
 
 TopBar {
@@ -16,11 +20,30 @@ TopBar {
 .top-bar {
     width: 100%;
     height: auto;
-    padding: 1 2 0 2;
+    /* left edge lines up with the rail beneath */
+    padding: 1 2 0 1;
     align: left middle;
 }
 
-/* compact one-line pills: tinted at rest, solid on hover */
+/* Button's line-pad already adds a cell per side */
+.top-bar-group {
+    width: auto;
+    height: auto;
+    & .option {
+        padding: 0 1;
+    }
+}
+
+/* the tab openers push to the far right */
+.top-bar-end {
+    width: 1fr;
+    align: right middle;
+    & .option:last-of-type {
+        margin-right: 0;
+    }
+}
+
+/* flat one-line pills: soft-spoken tint at rest, certain solid fill on hover/focus */
 .option {
     width: auto;
     min-width: 0;
@@ -29,38 +52,48 @@ TopBar {
     padding: 0 2;
     border: none;
     text-style: bold;
-    &:hover, &.-active {
+    &:hover, &:focus, &.-active {
         border: none;
-    }
-    &:focus {
         text-style: bold;
     }
 }
 
-.open-folder {
+/* the brand color is spent on one primary action per group */
+.pill-primary {
     background: $primary 15%;
-    color: $primary;
-    &:hover, &:focus {
+    color: $text-primary;
+    &:hover, &:focus, &.-active {
         background: $primary;
-        color: $background;
+        color: auto 90%;
     }
 }
 
-.open-file {
-    background: $warning 15%;
-    color: $warning;
-    &:hover, &:focus {
-        background: $warning;
-        color: $background;
+/* the catnip flower: the cat's own color */
+.pill-bloom {
+    background: $markdown-h1-color 15%;
+    color: $markdown-h1-color;
+    &:hover, &:focus, &.-active, &.-current {
+        background: $markdown-h1-color;
+        color: auto 90%;
     }
 }
 
-.new-file {
+.pill-neutral {
+    background: $foreground 8%;
+    color: $foreground;
+    &:hover, &:focus, &.-active {
+        background: $primary;
+        color: auto 90%;
+    }
+}
+
+/* rose is reserved for destroying or discarding work */
+.pill-error {
     background: $error 15%;
-    color: $error;
-    &:hover, &:focus {
+    color: $text-error;
+    &:hover, &:focus, &.-active {
         background: $error;
-        color: $background;
+        color: auto 90%;
     }
 }
 
@@ -76,30 +109,56 @@ TopBar {
     padding: 0 1;
 }
 
-/* icon rail: borderless, one row per icon, highlight on hover */
+/* glyph rail: muted at rest, wash on hover, tint on focus, solid when its panel or tab is showing */
 .side-button {
     height: auto;
     Button {
-        width: 4;
-        min-width: 4;
+        width: 3;
+        min-width: 3;
         height: 1;
-        margin-bottom: 1;
+        margin-bottom: 2;
+        content-align: center middle;
         padding: 0;
         border: none;
         background: transparent;
+        color: $text-muted;
+        text-style: bold;
         &:hover, &.-active {
             border: none;
             background: $boost;
+            color: $foreground;
         }
         &:focus {
-            background: $primary 25%;
-            text-style: none;
+            background: $primary 30%;
+            color: $foreground;
+            text-style: bold;
+        }
+        &.-current {
+            background: $primary;
+            color: $background;
+        }
+        &.-current:focus {
+            background: $primary-lighten-2;
         }
     }
 }
 
 SideBar {
-    width: 4;
+    width: 3;
+    margin-right: 1;
+}
+
+/* wide terminals: each rail button grows into a 5×3 block around its glyph */
+Screen.-wide {
+    SideBar {
+        width: 5;
+    }
+    .side-button Button {
+        width: 5;
+        min-width: 5;
+        height: 3;
+        margin-bottom: 1;
+    }
 }
 
 #side-panel {
@@ -110,17 +169,66 @@ SideBar {
     align: right middle;
 }
 
+/* the panel holding the keyboard deepens its wash */
+#side-panel:focus-within {
+    background: $panel 70%;
+}
+
+/* let the side panel's wash show through the tree */
+FileBrowser {
+    background: transparent;
+    & > .tree--guides-selected {
+        color: $foreground 35%;
+    }
+    &:focus > .tree--guides-selected {
+        color: $foreground 50%;
+    }
+}
+
 #tabbed-editor {
     padding-left: 1;
+}
+
+/* inactive tab labels at a readable contrast in every theme; the active one full and bold */
+Tab {
+    color: $foreground 70%;
+    &.-active {
+        color: $foreground;
+        text-style: bold;
+    }
+}
+
+/* the tab bar itself has the keyboard: the active tab becomes a solid block */
+Tabs:focus Tab.-active {
+    color: $block-cursor-foreground;
+    background: $block-cursor-background;
+}
+
+/* the active tab's underline glows only while the editor area has the keyboard */
+.tabbed-editor Underline > .underline--bar {
+    color: $primary 35%;
+}
+
+.tabbed-editor.-editing Underline > .underline--bar {
+    color: $primary;
+}
+
+/* no focus frame around the editor: TextArea's default draws a tall border on focus */
+Editor, Editor:focus {
+    border: none;
 }
 
 #customizer Label {
     margin: 1;
 }
 
+/* a quiet wash frame: the output is the content, not the chrome */
 #runner-output {
-    border: panel $primary-darken-3;
-    padding: 1 2;
+    border: panel $foreground 15%;
+    border-title-color: $foreground;
+    border-title-style: bold;
+    border-subtitle-color: $text-muted;
+    padding: 0 1;
 }
 
 .tabbed-editor {
@@ -129,7 +237,8 @@ SideBar {
 }
 
 /* slim, theme-tinted scrollbars on the shell's scrolling surfaces */
-FileBrowser, #runner-output, #welcome {
+FileBrowser, #runner-output, #welcome, #key-mappings DataTable,
+#key-mappings VerticalScroll {
     scrollbar-size-vertical: 1;
     scrollbar-size-horizontal: 1;
 }
@@ -137,6 +246,11 @@ FileBrowser, #runner-output, #welcome {
 /* keep the welcome copy at a readable measure on wide terminals */
 #welcome Markdown {
     max-width: 90;
+}
+
+/* a quote's bar is chrome: neutral, so green stays on what's current */
+MarkdownBlockQuote {
+    border-left: outer $foreground 30%;
 }
 
 .chat-pane{
@@ -161,12 +275,140 @@ FileBrowser, #runner-output, #welcome {
     padding-top: 1;
 }
 
+/* the nap note while the model loads: muted, like any aside */
+.chat-waking {
+    color: $text-muted;
+    text-style: italic;
+}
+
+/* the dots sit just under the note instead of filling the log */
+LoadingIndicator.chat-waking {
+    height: 3;
+}
+
+/* setup problems the cat reports, in the warning voice rather than as chat */
+.chat-status {
+    color: $text-warning;
+}
+
+/* framed like the picker's path field: a quiet wash at rest, primary while typing */
 .chat-input {
     height: 5;
     align: center bottom;
+    border: round $foreground 25%;
+    &:focus {
+        border: round $primary;
+    }
 }
 
-Select {
+/* customizer pickers: pills like File ▾, all one width, filling the panel up to 30 */
+.dropdown {
+    width: 1fr;
     max-width: 30;
+    margin: 0 1 1 1;
+    /* line-pad keeps a cell either side; narrow panels need every other one */
+    padding: 0;
+}
+
+/* dropdown menus hang under their button; the screen behind stays undimmed */
+MenuModal {
+    align: left top;
+    background: transparent;
+}
+
+.menu-list {
+    width: auto;
+    height: auto;
+    padding: 0 1;
+    background: $panel;
+    border: round $foreground 30%;
+    &:focus {
+        border: round $foreground 30%;
+        background-tint: transparent;
+    }
+    /* a wash, not a solid fill, so the peach keys stay readable */
+    & > .option-list--option-highlighted {
+        background: $primary 30%;
+        color: $foreground;
+        text-style: bold;
+    }
+}
+
+/* in-terminal dialogs */
+ChoiceModal, PathModal {
+    align: center middle;
+    background: $background 60%;
+}
+
+.modal-box {
+    width: 60%;
+    max-width: 64;
+    height: auto;
+    padding: 1 2;
+    background: $panel;
+    border: round $foreground 30%;
+}
+
+.modal-title {
+    color: $foreground;
+    text-style: bold;
     margin-bottom: 1;
+    &.-destructive {
+        color: $text-error;
+    }
+}
+
+.modal-message {
+    width: 100%;
+    margin-bottom: 1;
+}
+
+.modal-actions {
+    width: 100%;
+    height: auto;
+    align: right middle;
+    .option {
+        margin-right: 0;
+        margin-left: 1;
+    }
+}
+
+/* path picker: type with Tab completion, or browse the tree beneath */
+.picker-box {
+    width: 80%;
+    max-width: 90;
+    height: 80%;
+    max-height: 26;
+}
+
+.picker-input {
+    border: round $foreground 25%;
+    background: transparent;
+    padding: 0 1;
+    &:focus {
+        border: round $primary;
+        background: transparent;
+    }
+}
+
+.picker-hint {
+    color: $text-muted;
+    margin: 0 0 1 1;
+    &.-error {
+        color: $text-error;
+    }
+}
+
+.picker-tree {
+    height: 1fr;
+    margin-bottom: 1;
+    background: transparent;
+    scrollbar-size-vertical: 1;
+    scrollbar-size-horizontal: 1;
+}
+
+.shortcuts-note {
+    color: $text-muted;
+    margin: 1 1 0 1;
+    max-width: 90;
 }

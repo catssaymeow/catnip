@@ -24,11 +24,35 @@ class Editor(TextArea):
     def on_key(self, event: events.Key) -> None:
         """Handles special character insertions."""
 
+        if event.character in [")", "}", "]", "'", '"'] and self._next_character() == event.character:
+            # step over the closing character that auto-pairing already inserted
+            self.move_cursor_relative(columns=1)
+            event.prevent_default()
+            return
+
+        if event.character in ["'", '"'] and self._follows_word_character():
+            # an apostrophe in "don't" or a closing quote: insert it as typed
+            return
+
         if event.character in ["(", "{", "[", "'", '"']:
             pairs = {"(": "()", "{": "{}", "[": "[]", "'": "''", '"': '""'}
             self.insert(pairs[event.character])
             self.move_cursor_relative(columns=-1)
             event.prevent_default()
+
+    def _follows_word_character(self) -> bool:
+        """Return True if the character before the cursor is a letter or digit."""
+
+        row, column = self.cursor_location
+        line = self.document.get_line(row)
+        return column > 0 and line[column - 1].isalnum()
+
+    def _next_character(self) -> str:
+        """Return the character right after the cursor, or an empty string at line end."""
+
+        row, column = self.cursor_location
+        line = self.document.get_line(row)
+        return line[column] if column < len(line) else ""
 
     @on(TextArea.Changed)
     def on_changed(self, event: TextArea.Changed) -> None:

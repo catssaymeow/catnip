@@ -50,10 +50,54 @@ setup_ollama() {
         fi
 
         if command_exists ollama; then
-            echo "Pulling qwen3:8b model for Ollama..."
-            ollama pull qwen3:8b
-            pkill -9 -f "Ollama" 2>/dev/null || true
+            setup_chat_model
         fi
+}
+
+# chat models already pulled, most recently changed first; embedding models
+# can't chat. Matches OllamaClient.installed_models in the app.
+installed_chat_models() {
+    ollama list 2>/dev/null | awk 'NR > 1 && tolower($1) !~ /embed/ {print $1}'
+}
+
+# pull qwen3:8b only when the user has no chat model yet; Catnip detects
+# whichever model is there when it starts chatting
+setup_chat_model() {
+    local preferred="qwen3:8b"
+    local started_server=""
+
+    # list and pull need a server; start one only if none is running, so a
+    # server or Ollama app the user already has is left alone
+    if ! ollama list >/dev/null 2>&1; then
+        ollama serve >/dev/null 2>&1 &
+        started_server=$!
+        for _ in $(seq 1 40); do
+            ollama list >/dev/null 2>&1 && break
+            sleep 0.25
+        done
+    fi
+
+    local models
+    models=$(installed_chat_models)
+    if grep -qx "$preferred" <<< "$models"; then
+        echo "$preferred is already pulled; Catnip will chat through it."
+    elif [ -n "$models" ]; then
+        echo "Found chat model(s): $(paste -sd ' ' - <<< "$models")"
+        echo "Catnip will chat through $(head -n 1 <<< "$models")."
+        # shellcheck disable=SC2162
+        read -p "Also pull $preferred, which Catnip prefers when present (about 5GB)? (y/n) " pull_preferred
+        if [[ "$pull_preferred" =~ ^[Yy]$ ]]; then
+            ollama pull "$preferred"
+        fi
+    else
+        echo "No chat model found. Pulling $preferred for Ollama..."
+        ollama pull "$preferred"
+    fi
+
+    if [ -n "$started_server" ]; then
+        kill "$started_server" 2>/dev/null || true
+        wait "$started_server" 2>/dev/null || true
+    fi
 }
 
 setup_config() {

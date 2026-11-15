@@ -8,11 +8,27 @@ APP_THEMES = sorted(
                               in
                               BUILTIN_THEMES.keys()], key=lambda x: x[0])
 
+# editor theme setting that follows whichever app theme is active
+MATCH_APP_THEME = "match"
+
 # available themes for the editor
-EDITOR_THEMES = sorted(
+EDITOR_THEMES = [("Match app theme", MATCH_APP_THEME)] + sorted(
     [("Catnip", "catnip")] + [(theme.replace("_", " ").title(), theme)
                               for theme in list(TextArea().available_themes)],
     key=lambda x: x[0])
+
+# app themes that have an editor theme of the same name
+_PAIRED_EDITOR_THEMES = {"catnip", "dracula", "monokai"}
+
+
+def resolve_editor_theme(editor_theme: str, app_theme: str, dark: bool) -> str:
+    """Return the TextArea theme to use, following the app theme when set to match."""
+
+    if editor_theme != MATCH_APP_THEME:
+        return editor_theme
+    if app_theme in _PAIRED_EDITOR_THEMES:
+        return app_theme
+    return "vscode_dark" if dark else "github_light"
 
 _CATNIP = Theme(
     name="catnip",
@@ -29,42 +45,47 @@ _CATNIP = Theme(
     dark=True,
     variables={
         "block-cursor-text-style": "none",
-        "footer-key-foreground": "#a6e3a1",
-        "input-selection-background": "#45475a",
+        # keys are peach everywhere they're written; green stays for "current"
+        "footer-key-foreground": "#fab387",
+        "input-selection-background": "#423f56",
+        # headings bloom like the catnip flower
+        "markdown-h1-color": "#c9b0f7",
+        "markdown-h2-color": "#c9b0f7",
+        "markdown-h3-color": "#c9b0f7",
     },
 )
 
 _CATNIP_EDITOR = TextAreaTheme(
     name="catnip",
     base_style=Style(color="#e2e6de", bgcolor="#1e1e2e"),
-    gutter_style=Style(color="#6c7086", bgcolor="#252532"),
+    gutter_style=Style(color="#a7b0a5", bgcolor="#252532"),
     cursor_style=Style(color="#1e1e2e", bgcolor="#a6e3a1"),
     cursor_line_style=Style(bgcolor="#252532"),
-    bracket_matching_style=Style(bgcolor="#45475a", bold=True),
+    bracket_matching_style=Style(bgcolor="#423f56", bold=True),
     cursor_line_gutter_style=Style(color="#e2e6de", bgcolor="#252532"),
-    selection_style=Style(bgcolor="#45475a"),
+    selection_style=Style(bgcolor="#423f56"),
     syntax_styles={
         "string": Style(color="#a6e3a1"),
         "string.documentation": Style(color="#a6e3a1"),
-        "comment": Style(color="#6c7086"),
+        "comment": Style(color="#a7b0a5"),
         "heading.marker": Style(color="#fab387"),
-        "keyword": Style(color="#cba6f7"),
-        "keyword.self": Style(color="#cba6f7"),
+        "keyword": Style(color="#c9b0f7"),
+        "keyword.self": Style(color="#c9b0f7"),
         "operator": Style(color="#94e2d5"),
-        "conditional": Style(color="#f38ba8"),
-        "keyword.function": Style(color="#cba6f7"),
+        "conditional": Style(color="#c9b0f7"),
+        "keyword.function": Style(color="#c9b0f7"),
         "keyword.return": Style(color="#94e2d5"),
-        "keyword.operator": Style(color="#cba6f7"),
-        "repeat": Style(color="#f38ba8"),
-        "exception": Style(color="#f38ba8"),
-        "include": Style(color="#cba6f7"),
+        "keyword.operator": Style(color="#c9b0f7"),
+        "repeat": Style(color="#c9b0f7"),
+        "exception": Style(color="#c9b0f7"),
+        "include": Style(color="#c9b0f7"),
         "number": Style(color="#fab387"),
         "float": Style(color="#fab387"),
-        "class": Style(color="#cba6f7"),
+        "class": Style(color="#c9b0f7"),
         "type": Style(color="#f9e2af"),
         "type.class": Style(color="#f9e2af"),
         "type.builtin": Style(color="#94e2d5"),
-        "variable.builtin": Style(color="#bac2de"),
+        "variable.builtin": Style(color="#e2e6de", italic=True),
         "function": Style(color="#94e2d5"),
         "function.call": Style(color="#94e2d5"),
         "method": Style(color="#94e2d5"),
@@ -73,18 +94,18 @@ _CATNIP_EDITOR = TextAreaTheme(
         "boolean": Style(color="#94e2d5"),
         "constant.builtin": Style(color="#fab387"),
         "json.null": Style(color="#fab387"),
-        "tag": Style(color="#f38ba8"),
+        "tag": Style(color="#fab387"),
         "yaml.field": Style(color="#a6e3a1", bold=True),
         "json.label": Style(color="#a6e3a1", bold=True),
         "toml.type": Style(color="#f9e2af"),
-        "toml.datetime": Style(color="#cba6f7", italic=True),
+        "toml.datetime": Style(color="#c9b0f7", italic=True),
         "css.property": Style(color="#f9e2af"),
-        "heading": Style(color="#cba6f7", bold=True),
+        "heading": Style(color="#c9b0f7", bold=True),
         "bold": Style(bold=True),
         "italic": Style(italic=True),
         "strikethrough": Style(strike=True),
         "link.uri": Style(color="#94e2d5", underline=True),
-        "link.label": Style(color="#cba6f7"),
+        "link.label": Style(color="#c9b0f7"),
         "list.marker": Style(color="#fab387"),
         "inline_code": Style(color="#fab387"),
         "info_string": Style(color="#fab387", bold=True, italic=True),

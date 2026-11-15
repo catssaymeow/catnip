@@ -1,12 +1,15 @@
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Awaitable, Callable, Optional
 
+from textual.screen import ModalScreen
 from textual.widgets import TabbedContent, TabPane
 
 from core.document.context import DocumentContext
 from core.document.document import Document
-from core.explorer.dialogs import BaseDialogHandler
+from core.editor.languages import LANGUAGE_EXTENSION_MAP
+from core.explorer.dialogs import BaseDialogHandler, DialogUnavailableError
 from core.tab.lifecycle import TabLifecycle
+from ui.modals.choice_modal import CANCEL, unsaved_changes_modal
 
 
 class FileWorkflow:
@@ -20,81 +23,95 @@ class FileWorkflow:
 
     FileWorkflow does not perform low-level file I/O itself; instead, it
     delegates persistence to DocumentContext and user interaction to the
-    dialog handler, keeping responsibilities clearly separated.
+    dialog handler and in-app modals, keeping responsibilities clearly separated.
     """
 
     def __init__(self, documents: DocumentContext, dialogs: BaseDialogHandler,
-                 notify: Callable[[str], None]):
+                 notify: Callable[..., None],
+                 ask: Callable[[ModalScreen[str]], Awaitable[str]],
+                 start_folder: Callable[[], Path]):
+        """
+        @Args:
+            start_folder: where a save dialog opens for an untitled document.
+        """
+
         self.documents = documents
         self.dialogs = dialogs
         self.notify = notify
+        self.ask = ask
+        self.start_folder = start_folder
 
-    def close_active_tab(self, editor: TabbedContent,
-                         tab_lifecycle: TabLifecycle) -> None:
-        """Close the currently active tab, prompting to save if there are unsaved changes."""
+    async def close_active_tab(self, editor: TabbedContent,
+                               tab_lifecycle: TabLifecycle) -> None:
+        """Close the currently active tab, asking first if it has unsaved changes."""
 
         active_tab = editor.active_pane
         if not active_tab:
             return
 
-        self.prompt_save_on_dirty(active_tab.id, tab_lifecycle)
+        if not await self.resolve_unsaved(active_tab.id, tab_lifecycle,
+                                          closing="closing"):
+            return
 
         tab_lifecycle.on_tab_closed(active_tab.id)
 
-        editor.remove_pane(active_tab.id)
+        await editor.remove_pane(active_tab.id)
 
-    def prompt_to_save_all_before_exit(self, editor: TabbedContent,
-                                       tab_lifecycle: TabLifecycle) -> None:
+    async def resolve_all_before_exit(self, editor: TabbedContent,
+                                      tab_lifecycle: TabLifecycle) -> bool:
         """
-        Prompt to save all open documents with unsaved changes before application exit.
+        Ask about every document with unsaved changes before the application exits.
 
-        This method iterates over all open tabs and prompts the user to save
-        any document that is dirty. It does not close tabs directly; it only
-        ensures document state is safe before the application shuts down.
+        Tabs are processed in reverse order so the most recently opened tabs are
+        handled first, and each one is shown while its question is asked.
 
-        Tabs are processed in reverse order so the most recently active tabs are
-        handled first.
+        Returns:
+            True if it is safe to quit; False if the user cancelled.
         """
         for tab in reversed(list(editor.query(TabPane))):
-            editor.active = tab.id  # switch tab
-            self.prompt_save_on_dirty(tab.id, tab_lifecycle)
+            if not tab_lifecycle.needs_save_prompt(tab.id):
+                continue
+            editor.active = tab.id  # show the tab being asked about
+            if not await self.resolve_unsaved(tab.id, tab_lifecycle,
+                                              closing="quitting"):
+                return False
+        return True
 
-    def prompt_save_on_dirty(self, tab_id: str,
-                             tab_lifecycle: TabLifecycle) -> None:
+    async def resolve_unsaved(self, tab_id: str, tab_lifecycle: TabLifecycle,
+                              closing: str) -> bool:
         """
-        Prompt the user to save the document for the given tab if it has unsaved changes.
+        Ask what to do with unsaved changes in the given tab.
 
-        If the tab corresponds to a document with unsaved changes, the user is
-        asked whether to save it. When confirmed, the document is saved, opening
-        a file selection dialog only if the document does not yet have a path.
+        Returns:
+            True if the tab may close (it was clean, saved, or the user chose
+            not to save); False if the user cancelled or the save did not happen.
         """
         if not tab_lifecycle.needs_save_prompt(tab_id):
-            return
+            return True
 
         name = tab_lifecycle.get_display_name(tab_id)
+        choice = await self.ask(unsaved_changes_modal(name, closing))
 
-        confirm = self.dialogs.confirm_action(
-            title="Unsaved Changes",
-            message=f"Do you want to save changes to {name}?"
-        )
-
-        if not confirm:
-            return
+        if choice == CANCEL:
+            return False
+        if choice == "discard":
+            return True
 
         document = self.documents.get(tab_id)
 
         if document.path is None:
-            file_path = self.dialogs.select_folder_save()
+            file_path = await self._pick_save_path(document)
             if not file_path:
-                return
+                return False
 
             self.documents.save_to(document.id, file_path)
             self.documents.close(document.id)
-            self.notify(f"File saved to {file_path}")
-            return
+            self.notify(f"Saved {file_path.name} to {file_path.parent}")
+            return True
 
         self.documents.save(document.id)
         self.notify(f"Saved {document.title}")
+        return True
 
     def save_on_dirty(self, document: Document) -> None:
         """
@@ -105,13 +122,13 @@ class FileWorkflow:
         """
 
         if not self.documents.has_unsaved_changes(document.id):
-            self.notify("Already up to date")
+            self.notify(f"No changes to save in {document.title}")
             return
 
         self.documents.save(document.id)
         self.notify(f"Saved {document.title}")
 
-    def save_as(self, document: Document) -> Optional[Path]:
+    async def save_as(self, document: Document) -> Optional[Path]:
         """
         Save the given document to a new user-selected location.
 
@@ -121,11 +138,26 @@ class FileWorkflow:
         Returns:
             The new file path if the save succeeds; otherwise, None.
         """
-        file_path = self.dialogs.select_folder_save()
+        file_path = await self._pick_save_path(document)
         if not file_path:
             return None
 
         self.documents.save_to(document.id, file_path)
-        self.notify(f"File saved to {file_path}")
+        self.notify(f"Saved {file_path.name} to {file_path.parent}")
 
         return file_path
+
+    async def _pick_save_path(self, document: Document) -> Optional[Path]:
+        """Ask where to save the document, reporting it when the file picker can't open."""
+
+        if document.path:
+            start, file_name = document.path.parent, document.path.name
+        else:
+            extension = LANGUAGE_EXTENSION_MAP.get(document.language, "md")
+            start, file_name = self.start_folder(), f"untitled.{extension}"
+
+        try:
+            return await self.dialogs.select_save_path(start, file_name)
+        except DialogUnavailableError as error:
+            self.notify(str(error), severity="error", timeout=8)
+            return None

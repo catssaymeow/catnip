@@ -10,7 +10,8 @@ If you’re also learning, curious, or enjoy thoughtful software design, you’r
 
 ##  🧶 Features
 - Tabbed Editor with syntax highlighting for multiple languages
-- File Explorer with double-click to open
+- File Explorer with double-click to open, and deletes you can undo (Ctrl+Z)
+- Run Python, JavaScript, TypeScript, and Java files from the editor (Ctrl+R, F6 stops)
 - AI Chat tab (Ollama) for instant help
 - Custom Themes with live switching
 
@@ -18,6 +19,8 @@ If you’re also learning, curious, or enjoy thoughtful software design, you’r
 ## 🎏 Getting Started
 ### 1️⃣ Prerequisites
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) (installs Python 3.12+ for you if it's missing)
+- Optional: zenity on macOS and Linux, only if you'd rather open and save with your system's file dialog. Catnip's own in-terminal picker works everywhere, including over SSH; set `"system_file_picker": true` in `~/.config/catnip/config.json` to switch.
+- [Ollama](https://ollama.com) and any chat model, only for the Cat Me chat. Catnip uses `qwen3:8b` when it's pulled, otherwise the chat model you used most recently (`install.sh` offers to set up Ollama and `qwen3:8b`)
 
 ### 2️⃣ Installation
 1. Clone the repository:
