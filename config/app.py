@@ -1,5 +1,5 @@
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, fields
 from pathlib import Path
 
 
@@ -7,10 +7,12 @@ from pathlib import Path
 class AppConfig:
     """Application configuration model loaded from and saved to disk."""
 
-    app_theme: str = "dracula"
-    editor_theme: str = "dracula"
+    app_theme: str = "catnip"
+    editor_theme: str = "match"
     use_llm: bool = True
     llm_on_start: bool = False
+    # open and save with the OS file dialog (zenity or Tk) instead of in-terminal
+    system_file_picker: bool = False
 
     CONFIG_DIR = Path.home() / ".config" / "catnip"
     CONFIG_FILE = CONFIG_DIR / "config.json"
@@ -30,7 +32,9 @@ class AppConfig:
         except (json.JSONDecodeError, FileNotFoundError):
             return cls()
 
-        return cls(**data)
+        # ignore keys from older or newer versions instead of failing to start
+        known = {field.name for field in fields(cls)}
+        return cls(**{k: v for k, v in data.items() if k in known})
 
     def save(self) -> None:
         """Persist the current configuration to disk."""
